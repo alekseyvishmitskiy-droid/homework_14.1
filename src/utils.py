@@ -1,35 +1,37 @@
 import json
 import os
-from src.product import Product
+
 from src.category import Category
+from src.product import Product
 
 
 def read_json(path: str) -> list:
 
     full_path = os.path.abspath(path)
 
-    with open(full_path, 'r', encoding='utf-8') as file:
+    with open(full_path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     categories = []
 
     for category_data in data:
         products = []
-        for prod_data in category_data.get('products', []):
-            products.append(Product(
-                name=prod_data['name'],
-                description=prod_data['description'],
-                price=prod_data['price'],
-                quantity=prod_data['quantity']
-            ))
+        for prod_data in category_data.get("products", []):
+            products.append(
+                Product(
+                    name=prod_data["name"],
+                    description=prod_data["description"],
+                    price=prod_data["price"],
+                    quantity=prod_data["quantity"],
+                )
+            )
 
-        categories.append(Category(
-            name=category_data['name'],
-            description=category_data['description'],
-            products=products
-        ))
+        categories.append(
+            Category(name=category_data["name"], description=category_data["description"], products=products)
+        )
 
     return categories
+
 
 if __name__ == "__main__":
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
@@ -51,9 +53,11 @@ if __name__ == "__main__":
     print(product3.price)
     print(product3.quantity)
 
-    category1 = Category("Смартфоны",
-                         "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
-                         [product1, product2, product3])
+    category1 = Category(
+        "Смартфоны",
+        "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
+        [product1, product2, product3],
+    )
 
     print(category1.name == "Смартфоны")
     print(category1.description)
@@ -61,10 +65,12 @@ if __name__ == "__main__":
     print(category1.category_count)
     print(category1.product_count)
 
-    product4 = Product("55\" QLED 4K", "Фоновая подсветка", 123000.0, 7)
-    category2 = Category("Телевизоры",
-                         "Современный телевизор, который позволяет наслаждаться просмотром, станет вашим другом и помощником",
-                         [product4])
+    product4 = Product('55" QLED 4K', "Фоновая подсветка", 123000.0, 7)
+    category2 = Category(
+        "Телевизоры",
+        "Современный телевизор, который позволяет наслаждаться просмотром, станет вашим другом и помощником",
+        [product4],
+    )
 
     print(category2.name)
     print(category2.description)
