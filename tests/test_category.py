@@ -10,7 +10,7 @@ class MockProduct(Product):
 
     def __init__(self, name: str, price: float, quantity: int) -> None:
         self.name = name
-        self._Product__price = price  # type: ignore
+        self._Product__price = price
         self.quantity = quantity
 
 
