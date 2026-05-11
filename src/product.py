@@ -36,8 +36,8 @@ class Product:
             for product in products_list:
                 if product.name == name:
                     product.quantity += quantity
-                    if price > product.__price:
-                        product.__price = price
+                    if price > product.price:
+                        product.price = price
                     return product
 
         return cls(name, description, price, quantity)
