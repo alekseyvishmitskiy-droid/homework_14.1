@@ -1,21 +1,23 @@
-from typing import Any
+from typing import List
+
+from src.product import Product
 
 
 class Category:
     name: str
     description: str
-    __products: list
+    __products: List[Product]
     category_count: int = 0
     product_count: int = 0
 
-    def __init__(self, name: str, description: str, products: list) -> None:
+    def __init__(self, name: str, description: str, products: List[Product]) -> None:
         self.name = name
         self.description = description
         self.__products = products
         Category.category_count += 1
         Category.product_count += len(products)
 
-    def add_product(self, product: Any) -> None:
+    def add_product(self, product: Product) -> None:
         self.__products.append(product)
         Category.product_count += 1
 
@@ -23,5 +25,5 @@ class Category:
     def products(self) -> str:
         result = ""
         for product in self.__products:
-            result += f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт.\n"
+            result += f"{product.name}, {int(product.price)} руб. Остаток: {product.quantity} шт.\n"
         return result

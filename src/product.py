@@ -2,10 +2,6 @@ from typing import Any, Dict, List, Optional
 
 
 class Product:
-    name: str
-    description: str
-    quantity: int
-
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
         self.name = name
         self.description = description
@@ -31,17 +27,17 @@ class Product:
 
     @classmethod
     def new_product(cls, data: Dict[str, Any], products_list: Optional[List["Product"]] = None) -> "Product":
-        name: str = data.get("name", "")
-        description: str = data.get("description", "")
-        price: float = float(data.get("price", 0.0))
-        quantity: int = int(data.get("quantity", 0))
+        name = data.get("name", "")
+        description = data.get("description", "")
+        price = float(data.get("price", 0.0))
+        quantity = int(data.get("quantity", 0))
 
         if products_list:
             for product in products_list:
                 if product.name == name:
                     product.quantity += quantity
-                    if price > product.price:
-                        product.price = price
+                    if price > product.__price:
+                        product.__price = price
                     return product
 
         return cls(name, description, price, quantity)
