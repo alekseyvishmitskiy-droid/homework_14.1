@@ -14,7 +14,6 @@ def reset_counters():
 
 @pytest.fixture
 def category_data() -> Category:
-    # Используем целые числа, чтобы избежать проблем с .0 в строке
     p1 = MockProduct("Samsung Galaxy", 100000, 5)
     p2 = MockProduct("Iphone 15", 150000, 3)
     return Category("Смартфоны", "Современные гаджеты", [p1, p2])
