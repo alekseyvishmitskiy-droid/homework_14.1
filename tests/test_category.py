@@ -10,13 +10,15 @@ class MockProduct(Product):
     def __init__(self, name: str, description: str, price: float, quantity: int = 0) -> None:
         super().__init__(name, description, price, quantity)
 
-    def __str__(self) -> str:
-        return f"{self.name}, {int(self.price)} руб. Остаток: {self.quantity} шт."
+    def __init__(self, name: str, price: float, quantity: int) -> None:
+        self.name = name
+        self._Product__price = price
+        self.quantity = quantity
 
 
 @pytest.fixture
 def category_data() -> Category:
-    p1 = MockProduct("Samsung Galaxy", "Базовый Самсунг", 100000.0, 5)
+    p1 = MockProduct("Samsung Galaxy",  "Базовый Самсунг", 100000.0, 5)
     p2 = MockProduct("Iphone 15", "Базовый Айфон", 150000.0, 3)
     return Category("Смартфоны", "Современные гаджеты", [p1, p2])
 
