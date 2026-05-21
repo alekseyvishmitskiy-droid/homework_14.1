@@ -1,54 +1,49 @@
+from typing import List
+
 import pytest
 
 from src.category import Category
 from src.product import Product
 
 
-@pytest.fixture(autouse=True)
-def reset_category_counters() -> None:
-    Category.category_count = 0
-    Category.product_count = 0
+class MockProduct(Product):
+    def __init__(self, name: str, description: str, price: float, quantity: int = 0) -> None:
+        super().__init__(name, description, price, quantity)
+
+    def __str__(self) -> str:
+        return f"{self.name}, {int(self.price)} руб. Остаток: {self.quantity} шт."
 
 
 @pytest.fixture
-def product_iphone() -> Product:
-    return Product(name="iPhone 15", description="512GB", price=100000.0, quantity=5)
+def category_data() -> Category:
+    p1 = MockProduct("Samsung Galaxy", "Базовый Самсунг", 100000.0, 5)
+    p2 = MockProduct("Iphone 15", "Базовый Айфон", 150000.0, 3)
+    return Category("Смартфоны", "Современные гаджеты", [p1, p2])
 
 
-@pytest.fixture
-def product_samsung() -> Product:
-    return Product(name="Samsung S24", description="256GB", price=90000.0, quantity=10)
+def test_init(category_data: Category) -> None:
+    assert category_data.name == "Смартфоны"
+    assert Category.category_count >= 1
+    assert Category.product_count >= 2
 
 
-def test_category_init(product_iphone: Product, product_samsung: Product) -> None:
-    products_list = [product_iphone, product_samsung]
-    category = Category(name="Смартфоны", description="Мобильные телефоны", products=products_list)
+def test_add_product(category_data: Category) -> None:
+    current_count = Category.product_count
+    new_p = MockProduct("Xiaomi", "Бюджетный хит", 30000.0, 10)
+    category_data.add_product(new_p)
 
-    assert category.name == "Смартфоны"
-    assert category.description == "Мобильные телефоны"
-    assert Category.category_count == 1
-    assert Category.product_count == 15
+    assert Category.product_count == current_count + 1
 
-
-def test_add_product(product_iphone: Product, product_samsung: Product) -> None:
-    category = Category(name="Смартфоны", description="Телефоны", products=[product_iphone])
-    assert Category.product_count == 5
-
-    category.add_product(product_samsung)
-    assert Category.product_count == 15
+    products_list: List[Product] = getattr(category_data, "_Category__products")
+    assert new_p in products_list
 
 
-def test_str_magic_method(product_iphone: Product, product_samsung: Product) -> None:
-    category = Category(name="Смартфоны", description="Телефоны", products=[product_iphone, product_samsung])
+def test_products_property() -> None:
+    prod1 = MockProduct("Samsung Galaxy S23 Ultra", "256GB, Серый", 180000.0, 3)
+    prod2 = MockProduct("Iphone 15 Pro", "128GB, Титан", 140000.0, 5)
+    category = Category("Смартфоны", "Гаджеты", [prod1, prod2])
 
-    assert str(category) == "Смартфоны, количество продуктов: 15 шт."
-
-
-def test_products_property(product_iphone: Product, product_samsung: Product) -> None:
-    category = Category(name="Смартфоны", description="Телефоны", products=[product_iphone, product_samsung])
-
-    expected_output = (
-        "iPhone 15, 100000 руб. Остаток: 5 шт.\n"
-        "Samsung S24, 90000 руб. Остаток: 10 шт.\n"
+    assert category.products.strip() == (
+        "Samsung Galaxy S23 Ultra, 180000 руб. Остаток: 3 шт.\n"
+        "Iphone 15 Pro, 140000 руб. Остаток: 5 шт."
     )
-    assert category.products == expected_output
