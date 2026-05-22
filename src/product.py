@@ -2,7 +2,10 @@ from typing import Any, Dict, List, Optional
 
 
 class Product:
-    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+
+    def __init__(
+        self, name: str, description: str, price: float, quantity: int
+    ) -> None:
         self.name = name
         self.description = description
         self._price = price
@@ -25,7 +28,9 @@ class Product:
             self._price = new_price
 
     @classmethod
-    def new_product(cls, data: Dict[str, Any], products_list: Optional[List["Product"]] = None) -> "Product":
+    def new_product(
+        cls, data: Dict[str, Any], products_list: Optional[List["Product"]] = None
+    ) -> "Product":
         name = data.get("name", "")
         description = data.get("description", "")
         price = float(data.get("price", 0.0))
@@ -43,9 +48,9 @@ class Product:
     def __str__(self) -> str:
         return f"{self.name}, {int(self.price)} руб. Остаток: {self.quantity} шт."
 
-    def __add__(self, other: "Product") -> float:
+    def __add__(self, other: Any) -> Any:
         if not isinstance(other, Product):
-            raise TypeError("Складывать можно только объекты класса Product")
+            return NotImplemented
 
         current_total = self.price * self.quantity
         other_total = other.price * other.quantity
