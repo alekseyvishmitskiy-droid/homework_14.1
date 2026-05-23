@@ -4,26 +4,30 @@ from src.product import Product
 
 
 class Category:
-    category_count = 0
-    product_count = 0
+    category_count: int = 0
+    product_count: int = 0
 
-    def __init__(self, name: str, description: str, products: List[Product]) -> None:
+    def __init__(self, name: str, description: str, products: list) -> None:
         self.name = name
         self.description = description
-        self.__products = products
+
+        self.__products: List[Product] = []
+
         Category.category_count += 1
-        Category.product_count += sum(product.quantity for product in products)
+
+        for product in products:
+            self.add_product(product)
 
     def add_product(self, product: Product) -> None:
+        if not isinstance(product, Product):
+            raise TypeError("Можно добавлять только продукты или их наследников!")
+
         self.__products.append(product)
-        Category.product_count += product.quantity
+        Category.product_count += 1
 
     @property
-    def products(self) -> str:
-        result = ""
-        for product in self.__products:
-            result += f"{product.name}, {int(product.price)} руб. Остаток: {product.quantity} шт.\n"
-        return result
+    def products(self) -> List[str]:
+        return [str(product) for product in self.__products]
 
     def __str__(self) -> str:
         total_quantity = sum(product.quantity for product in self.__products)

@@ -1,11 +1,9 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 
 class Product:
 
-    def __init__(
-        self, name: str, description: str, price: float, quantity: int
-    ) -> None:
+    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
         self.name = name
         self.description = description
         self._price = price
@@ -13,7 +11,7 @@ class Product:
 
     @property
     def price(self) -> float:
-        return self._price
+        return float(self._price)
 
     @price.setter
     def price(self, new_price: float) -> None:
@@ -28,9 +26,7 @@ class Product:
             self._price = new_price
 
     @classmethod
-    def new_product(
-        cls, data: Dict[str, Any], products_list: Optional[List["Product"]] = None
-    ) -> "Product":
+    def new_product(cls, data: Dict[str, Any], products_list: Optional[List["Product"]] = None) -> "Product":
         name = data.get("name", "")
         description = data.get("description", "")
         price = float(data.get("price", 0.0))
@@ -40,18 +36,57 @@ class Product:
             for product in products_list:
                 if product.name == name:
                     product.quantity += quantity
-                    product._price = max(product.price, price)
-                    return product
+                    product._price = max(product._price, price)
+                    return cast(Product, product)
 
         return cls(name, description, price, quantity)
 
     def __str__(self) -> str:
         return f"{self.name}, {int(self.price)} руб. Остаток: {self.quantity} шт."
 
-    def __add__(self, other: Any) -> Any:
-        if not isinstance(other, Product):
-            return NotImplemented
+    def __add__(self, other: Any) -> float:
+        if type(self) is not type(other):
+            raise TypeError("Нельзя складывать товары разных классов!")
 
-        current_total = self.price * self.quantity
-        other_total = other.price * other.quantity
-        return current_total + other_total
+        current_total = float(self.price) * int(self.quantity)
+        other_total = float(other.price) * int(other.quantity)
+
+        return float(current_total + other_total)
+
+
+class Smartphone(Product):
+
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        efficiency: float,
+        model: str,
+        memory: int,
+        color: str,
+    ) -> None:
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        country: str,
+        germination_period: str,
+        color: str,
+    ) -> None:
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
