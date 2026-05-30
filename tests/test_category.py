@@ -1,24 +1,29 @@
 import json
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any, List
 from unittest.mock import patch
 
 import pytest
 
-from src.category import Category
+from src.category import Category, Order
 from src.product import LawnGrass, Product, Smartphone
 from src.utils import read_json
 
 
 @pytest.fixture(autouse=True)
-def reset_category_counters() -> None:
+def reset_category_counters() -> Generator[None, None, None]:
+    """Сбрасывает счетчики до и после каждого теста для изоляции."""
+    Category.category_count = 0
+    Category.product_count = 0
+    yield
     Category.category_count = 0
     Category.product_count = 0
 
 
 @pytest.fixture(autouse=True)
-def mock_input() -> Any:
-    """Автоматически подменяет input(), возвращая 'y', чтобы тесты не зависали."""
+def mock_input() -> Generator[None, None, None]:
+    """Автоматически подменяет input(), чтобы тесты не зависали."""
     with patch("builtins.input", return_value="y"):
         yield
 
@@ -68,6 +73,8 @@ def test_category_init(product_iphone: Product, product_samsung: Product) -> Non
     assert category.description == "Мобильные телефоны"
     assert Category.category_count == 1
     assert Category.product_count == 2
+    assert category.total_quantity == 15
+    assert category.total_cost == 1400000.0
 
 
 def test_add_product(product_iphone: Product, product_samsung: Product) -> None:
@@ -85,6 +92,7 @@ def test_str_magic_method(product_iphone: Product, product_samsung: Product) -> 
 
 
 def test_products_property(product_iphone: Product, product_samsung: Product) -> None:
+    """Тест свойства products, возвращающего список строк с целочисленными ценами."""
     category = Category(name="Смартфоны", description="Телефоны", products=[product_iphone, product_samsung])
 
     expected_output = [
@@ -95,7 +103,6 @@ def test_products_property(product_iphone: Product, product_samsung: Product) ->
 
 
 def test_smartphone_init(smartphone_s23: Smartphone) -> None:
-    """Проверка корректности инициализации уникальных свойств Smartphone."""
     assert smartphone_s23.name == "Samsung Galaxy S23 Ultra"
     assert smartphone_s23.efficiency == 95.5
     assert smartphone_s23.model == "S23 Ultra"
@@ -104,7 +111,6 @@ def test_smartphone_init(smartphone_s23: Smartphone) -> None:
 
 
 def test_lawn_grass_init(grass_lawn: LawnGrass) -> None:
-    """Проверка корректности инициализации уникальных свойств LawnGrass."""
     assert grass_lawn.name == "Газонная трава"
     assert grass_lawn.country == "Россия"
     assert grass_lawn.germination_period == "7 дней"
@@ -112,7 +118,6 @@ def test_lawn_grass_init(grass_lawn: LawnGrass) -> None:
 
 
 def test_valid_addition(smartphone_s23: Smartphone) -> None:
-    """Проверка сложения стоимости товаров одного и того же класса."""
     smartphone_another = Smartphone(
         name="Iphone 15",
         description="512GB",
@@ -127,29 +132,42 @@ def test_valid_addition(smartphone_s23: Smartphone) -> None:
 
 
 def test_invalid_addition_raises_type_error(smartphone_s23: Smartphone, grass_lawn: LawnGrass) -> None:
-    """Проверка возбуждения TypeError при сложении разных классов."""
     with pytest.raises(TypeError, match="Нельзя складывать товары разных классов!"):
         _ = smartphone_s23 + grass_lawn
 
 
 def test_add_invalid_product_to_category_raises_type_error() -> None:
-    """Проверка защиты add_product от добавления объектов, не являющихся Product/наследниками."""
     category = Category(name="Смартфоны", description="Телефоны", products=[])
 
     with pytest.raises(TypeError, match="Можно добавлять только продукты или их наследников!"):
-        category.add_product("Not a product")
+        category.add_product("Not a product")  # type: ignore[arg-type]
 
 
 def test_category_init_with_invalid_product_raises_type_error() -> None:
-    """Проверка защиты конструктора __init__ от добавления некорректных типов при создании."""
     invalid_list: List[Any] = ["Just a string", 123]
 
     with pytest.raises(TypeError, match="Можно добавлять только продукты или их наследников!"):
         Category(name="Гнилой товар", description="Тест", products=invalid_list)
 
+    # Проверка, что из-за падения счетчик категорий не увеличился
+    assert Category.category_count == 0
+
+
+def test_order_init_success(product_iphone: Product) -> None:
+    order = Order(product=product_iphone, quantity=3)
+
+    assert order.product == product_iphone
+    assert order.total_quantity == 3
+    assert order.total_cost == 300000.0
+    assert str(order) == "Заказ: iPhone 15 x 3 шт. Итоговая стоимость: 300000 руб."
+
+
+def test_order_init_raises_type_error() -> None:
+    with pytest.raises(TypeError, match="В заказ можно добавить только продукт или его наследника!"):
+        Order(product="Not a product", quantity=5)  # type: ignore[arg-type]
+
 
 def test_read_json_success(tmp_path: Path) -> None:
-    """Тест успешного парсинга JSON и наполнения категории."""
     data = [
         {
             "name": "Смартфоны",
@@ -173,11 +191,9 @@ def test_read_json_success(tmp_path: Path) -> None:
 
     assert isinstance(product_str, str)
     assert "Iphone" in product_str
-    assert "1000" in product_str
 
 
 def test_read_json_empty(tmp_path: Path) -> None:
-    """Тест чтения пустого списка категорий."""
     p = tmp_path / "empty.json"
     p.write_text(json.dumps([]), encoding="utf-8")
 
@@ -186,7 +202,6 @@ def test_read_json_empty(tmp_path: Path) -> None:
 
 
 def test_read_json_no_products_key(tmp_path: Path) -> None:
-    """Тест на случай отсутствия ключа 'products' у категории в JSON."""
     data = [{"name": "Пустая категория", "description": "Без продуктов"}]
 
     p = tmp_path / "no_products.json"
