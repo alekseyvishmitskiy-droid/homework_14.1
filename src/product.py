@@ -1,13 +1,47 @@
+from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, cast
 
 
-class Product:
+class LogMixin:
+    """Миксин для логирования процесса создания объектов."""
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Сначала инициализируем объект в основном классе через MRO
+        super().__init__(*args, **kwargs)
+        # Выводим в консоль информацию об объекте с помощью __repr__
+        print(f"Был создан объект: {self.__repr__()}")
+
+    def __repr__(self) -> str:
+        # Собираем список всех переданных и сохраненных атрибутов
+        attrs = ", ".join([f"'{v}'" if isinstance(v, str) else str(v) for v in self.__dict__.values()])
+        return f"{self.__class__.__name__}({attrs})"
+
+
+class BaseProduct(ABC):
+    """Базовый абстрактный класс для всех продуктов."""
+
+    @abstractmethod
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
         self.name = name
         self.description = description
         self._price = price
         self.quantity = quantity
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+    @abstractmethod
+    def __add__(self, other: Any) -> float:
+        pass
+
+
+# Важно: LogMixin ставится ПЕРВЫМ в цепочке наследования, чтобы его __init__ перехватил вызов
+class Product(LogMixin, BaseProduct):
+    """Базовый класс конкретных продуктов."""
+
+    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        super().__init__(name, description, price, quantity)
 
     @property
     def price(self) -> float:
@@ -55,6 +89,7 @@ class Product:
 
 
 class Smartphone(Product):
+    """Класс Смартфон, наследующийся от Product и автоматически использующий LogMixin."""
 
     def __init__(
         self,
@@ -75,6 +110,7 @@ class Smartphone(Product):
 
 
 class LawnGrass(Product):
+    """Класс Трава газонная, наследующийся от Product и автоматически использующий LogMixin."""
 
     def __init__(
         self,
