@@ -12,7 +12,7 @@ class BaseCategoryOrder(ABC):
 
     @property
     @abstractmethod
-    def total_quantity(self) -> int:
+    def total_quantity(self) -> int:#
         pass
 
     @property

@@ -90,17 +90,7 @@ class Product(LogMixin, BaseProduct):
 class Smartphone(Product):
     """Класс Смартфон."""
 
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        quantity: int,
-        efficiency: float,
-        model: str,
-        memory: int,
-        color: str,
-    ) -> None:
+    def __init__(self, name: str, description: str, price: float, quantity: int, efficiency: float, model: str, memory: int, color: str) -> None:
         self.efficiency = efficiency
         self.model = model
         self.memory = memory
@@ -111,16 +101,7 @@ class Smartphone(Product):
 class LawnGrass(Product):
     """Класс Трава газонная."""
 
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        quantity: int,
-        country: str,
-        germination_period: str,
-        color: str,
-    ) -> None:
+    def __init__(self, name: str, description: str, price: float, quantity: int, country: str, germination_period: str, color: str) -> None:
         self.country = country
         self.germination_period = germination_period
         self.color = color
