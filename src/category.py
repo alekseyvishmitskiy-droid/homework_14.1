@@ -9,7 +9,6 @@ class BaseCategoryOrder(ABC):
     """Абстрактный базовый класс для категорий и заказов."""
 
     def __init__(self) -> None:
-        # Убран @abstractmethod, метод стал безопасным для super()
         pass
 
     @property
@@ -102,7 +101,7 @@ class Order(BaseCategoryOrder):
     """Класс для представления заказа конкретного продукта."""
 
     def __init__(self, product: Product, quantity: int) -> None:
-        super().__init__()  # Теперь mypy пропускает этот вызов без ошибок
+        super().__init__()
         if not isinstance(product, Product):
             raise TypeError("В заказ можно добавить только продукт или его наследника!")
 
