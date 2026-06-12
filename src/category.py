@@ -31,7 +31,6 @@ class Category(BaseCategoryOrder):
     def __init__(self, name: str, description: str, products: list) -> None:
         super().__init__()
 
-
         for product in products:
             if not isinstance(product, Product):
                 raise TypeError("Можно добавлять только продукты или их наследников!")
@@ -40,9 +39,7 @@ class Category(BaseCategoryOrder):
         self.description = description
         self.__products: List[Product] = []
 
-
         Category.category_count += 1
-
 
         for product in products:
             self.add_product(product)
