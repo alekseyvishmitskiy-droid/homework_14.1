@@ -19,6 +19,9 @@ class BaseProduct(ABC):
 
     @abstractmethod
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+
         self.name = name
         self.description = description
         self._price = price
@@ -26,20 +29,20 @@ class BaseProduct(ABC):
 
     @abstractmethod
     def __str__(self) -> str:
-        """Абстрактный метод для строкового представления (обязателен для реализации)."""
+        """Абстрактный метод для строкового представления."""
         pass
 
     @abstractmethod
     def __add__(self, other: Any) -> float:
-        """Абстрактный метод для сложения продуктов (обязателен для реализации)."""
+        """Абстрактный метод для сложения продуктов."""
         pass
 
 
 class Product(LogMixin, BaseProduct):
     """Базовый класс конкретных продуктов."""
 
-    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
-        super().__init__(name, description, price, quantity)
+    def __init__(self, name: str, description: str, price: float, quantity: int, **kwargs: Any) -> None:
+        super().__init__(name, description, price, quantity, **kwargs)
 
     @property
     def price(self) -> float:
@@ -90,7 +93,17 @@ class Product(LogMixin, BaseProduct):
 class Smartphone(Product):
     """Класс Смартфон."""
 
-    def __init__(self, name: str, description: str, price: float, quantity: int, efficiency: float, model: str, memory: int, color: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        efficiency: float,
+        model: str,
+        memory: int,
+        color: str,
+    ) -> None:
         self.efficiency = efficiency
         self.model = model
         self.memory = memory
@@ -101,10 +114,17 @@ class Smartphone(Product):
 class LawnGrass(Product):
     """Класс Трава газонная."""
 
-    def __init__(self, name: str, description: str, price: float, quantity: int, country: str, germination_period: str, color: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        country: str,
+        germination_period: str,
+        color: str,
+    ) -> None:
         self.country = country
         self.germination_period = germination_period
         self.color = color
         super().__init__(name, description, price, quantity)
-
-
