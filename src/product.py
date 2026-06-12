@@ -6,13 +6,10 @@ class LogMixin:
     """Миксин для логирования процесса создания объектов."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Сначала инициализируем объект в основном классе через MRO
         super().__init__(*args, **kwargs)
-        # Выводим в консоль информацию об объекте с помощью __repr__
         print(f"Был создан объект: {self.__repr__()}")
 
     def __repr__(self) -> str:
-        # Собираем список всех переданных и сохраненных атрибутов
         attrs = ", ".join([f"'{v}'" if isinstance(v, str) else str(v) for v in self.__dict__.values()])
         return f"{self.__class__.__name__}({attrs})"
 
@@ -32,14 +29,15 @@ class BaseProduct(ABC):
 
     @abstractmethod
     def __str__(self) -> str:
+        """Абстрактный метод для строкового представления."""
         pass
 
     @abstractmethod
     def __add__(self, other: Any) -> float:
+        """Абстрактный метод для сложения продуктов."""
         pass
 
 
-# Важно: LogMixin ставится ПЕРВЫМ в цепочке наследования, чтобы его __init__ перехватил вызов
 class Product(LogMixin, BaseProduct):
     """Базовый класс конкретных продуктов."""
 
@@ -76,7 +74,8 @@ class Product(LogMixin, BaseProduct):
                     product._price = max(product._price, price)
                     return cast(Product, product)
 
-        return cls(name, description, price, quantity)
+        extra_kwargs = {k: v for k, v in data.items() if k not in ["name", "description", "price", "quantity"]}
+        return cls(name, description, price, quantity, **extra_kwargs)
 
     def __str__(self) -> str:
         return f"{self.name}, {int(self.price)} руб. Остаток: {self.quantity} шт."
@@ -92,7 +91,7 @@ class Product(LogMixin, BaseProduct):
 
 
 class Smartphone(Product):
-    """Класс Смартфон, наследующийся от Product и автоматически использующий LogMixin."""
+    """Класс Смартфон."""
 
     def __init__(
         self,
@@ -105,15 +104,15 @@ class Smartphone(Product):
         memory: int,
         color: str,
     ) -> None:
-        super().__init__(name, description, price, quantity)
         self.efficiency = efficiency
         self.model = model
         self.memory = memory
         self.color = color
+        super().__init__(name, description, price, quantity)
 
 
 class LawnGrass(Product):
-    """Класс Трава газонная, наследующийся от Product и автоматически использующий LogMixin."""
+    """Класс Трава газонная."""
 
     def __init__(
         self,
@@ -125,7 +124,7 @@ class LawnGrass(Product):
         germination_period: str,
         color: str,
     ) -> None:
-        super().__init__(name, description, price, quantity)
         self.country = country
         self.germination_period = germination_period
         self.color = color
+        super().__init__(name, description, price, quantity)
