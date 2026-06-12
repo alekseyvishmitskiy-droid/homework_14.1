@@ -8,16 +8,19 @@ from src.product import BaseProduct, LawnGrass, Product, Smartphone
 
 @pytest.fixture
 def product_data() -> Dict[str, Any]:
+    """Словарь данных для фабричного метода."""
     return {"name": "iPhone 15", "description": "512GB", "price": 100000.0, "quantity": 5}
 
 
 @pytest.fixture
 def product_iphone() -> Product:
+    """Фикстура базового продукта."""
     return Product(name="iPhone 15", description="512GB", price=100000.0, quantity=5)
 
 
 @pytest.fixture
 def smartphone_s23() -> Smartphone:
+    """Фикстура смартфона (наследник Product)."""
     return Smartphone(
         name="Samsung Galaxy S23 Ultra",
         description="256GB",
@@ -33,7 +36,7 @@ def smartphone_s23() -> Smartphone:
 def test_base_product_instantiation_error() -> None:
     """Проверка, что абстрактный класс BaseProduct нельзя инициализировать."""
     with pytest.raises(TypeError):
-        _ = BaseProduct("Тест", "Описание", 10.0, 1)  # type: ignore[abstract]
+        _ = BaseProduct("Тест", "Описание", 10.0, 1) # type: ignore[abstract]
 
 
 def test_log_mixin_stdout(capsys: pytest.CaptureFixture[str]) -> None:
@@ -42,6 +45,12 @@ def test_log_mixin_stdout(capsys: pytest.CaptureFixture[str]) -> None:
     captured = capsys.readouterr()
     assert "Был создан объект: Product" in captured.out
     assert "Тест Лога" in captured.out
+
+
+def test_product_zero_quantity_raises_value_error() -> None:
+    """Тест запрета создания товара с нулевым количеством (из BaseProduct)."""
+    with pytest.raises(ValueError, match="Товар с нулевым количеством не может быть добавлен"):
+        Product("Ноль", "Описание", 100.0, 0)
 
 
 def test_product_str(product_iphone: Product) -> None:
@@ -87,18 +96,16 @@ def test_new_product_creation(product_data: Dict[str, Any]) -> None:
 
 def test_new_product_existing_merge(product_data: Dict[str, Any], product_iphone: Product) -> None:
     """Проверка объединения количества и выбора максимальной цены для дубликата."""
-    # Существующий список продуктов, куда передаем копию с измененными данными
     products_list: List[Product] = [product_iphone]
 
-    # Новые данные: имя совпадает, цена выше, количество добавляется
     product_data["price"] = 110000.0
     product_data["quantity"] = 3
 
     merged_product = Product.new_product(product_data, products_list)
 
     assert merged_product is product_iphone
-    assert merged_product.quantity == 8  # 5 + 3
-    assert merged_product.price == 110000.0  # max(100000, 110000)
+    assert merged_product.quantity == 8
+    assert merged_product.price == 110000.0
 
 
 def test_add_same_classes(smartphone_s23: Smartphone) -> None:
@@ -113,7 +120,6 @@ def test_add_same_classes(smartphone_s23: Smartphone) -> None:
         memory=256,
         color="Черный",
     )
-    # (180000 * 5) + (150000 * 2) = 900000 + 300000 = 1200000.0
     assert smartphone_s23 + smartphone_2 == 1200000.0
 
 

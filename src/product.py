@@ -22,6 +22,9 @@ class BaseProduct(ABC):
 
     @abstractmethod
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+
         self.name = name
         self.description = description
         self._price = price
@@ -40,8 +43,8 @@ class BaseProduct(ABC):
 class Product(LogMixin, BaseProduct):
     """Базовый класс конкретных продуктов."""
 
-    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
-        super().__init__(name, description, price, quantity)
+    def __init__(self, name: str, description: str, price: float, quantity: int, **kwargs: Any) -> None:
+        super().__init__(name, description, price, quantity, **kwargs)
 
     @property
     def price(self) -> float:

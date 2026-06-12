@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
+from src.exceptions import ZeroQuantityProductError
 from src.product import Product
 
 
@@ -48,12 +49,25 @@ class Category(BaseCategoryOrder):
             self.add_product(product)
 
     def add_product(self, product: Product) -> None:
-        """Добавляет продукт в категорию и увеличивает глобальный счетчик."""
+        """Добавляет продукт в категорию с обработкой исключений."""
         if not isinstance(product, Product):
             raise TypeError("Можно добавлять только продукты или их наследников!")
 
-        self.__products.append(product)
-        Category.product_count += 1
+        try:
+            if product.quantity == 0:
+                raise ZeroQuantityProductError(f"Товар '{product.name}' с нулевым количеством не может быть добавлен.")
+
+            self.__products.append(product)
+            Category.product_count += 1
+
+        except ZeroQuantityProductError as e:
+            print(f"Ошибка добавления в категорию: {e}")
+
+        else:
+            print(f"Товар '{product.name}' успешно добавлен в категорию.")
+
+        finally:
+            print("Обработка добавления товара завершена.")
 
     @property
     def products(self) -> List[str]:
@@ -70,6 +84,16 @@ class Category(BaseCategoryOrder):
         """Возвращает общую стоимость всех продуктов в категории."""
         return sum(product.price * product.quantity for product in self.__products)
 
+    def middle_price(self) -> float:
+        """Подсчитывает средний ценник всех товаров в категории.
+
+        Если товаров нет или их количество равно 0, возвращает 0.
+        """
+        try:
+            return self.total_cost / self.total_quantity
+        except ZeroDivisionError:
+            return 0.0
+
     def __str__(self) -> str:
         return f"{self.name}, количество продуктов: {self.total_quantity} шт."
 
@@ -81,8 +105,24 @@ class Order(BaseCategoryOrder):
         super().__init__()  # Теперь mypy пропускает этот вызов без ошибок
         if not isinstance(product, Product):
             raise TypeError("В заказ можно добавить только продукт или его наследника!")
-        self.product = product
-        self.quantity = quantity
+
+        try:
+            if quantity == 0 or product.quantity == 0:
+                raise ZeroQuantityProductError(
+                    f"Невозможно оформить заказ на товар '{product.name}' с нулевым количеством."
+                )
+
+            self.product = product
+            self.quantity = quantity
+
+        except ZeroQuantityProductError as e:
+            print(f"Ошибка оформления заказа: {e}")
+
+        else:
+            print(f"Заказ на товар '{product.name}' успешно оформлен.")
+
+        finally:
+            print("Обработка добавления товара завершена.")
 
     @property
     def total_quantity(self) -> int:
