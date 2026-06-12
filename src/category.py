@@ -30,9 +30,9 @@ class Category(BaseCategoryOrder):
     product_count: int = 0
 
     def __init__(self, name: str, description: str, products: list) -> None:
-        super().__init__()  # Теперь mypy пропускает этот вызов без ошибок
+        super().__init__()
 
-        # 1. Валидация продуктов до изменения счетчиков (защита тестов)
+
         for product in products:
             if not isinstance(product, Product):
                 raise TypeError("Можно добавлять только продукты или их наследников!")
@@ -41,10 +41,10 @@ class Category(BaseCategoryOrder):
         self.description = description
         self.__products: List[Product] = []
 
-        # 2. Увеличение счетчика только при успешной валидации
+
         Category.category_count += 1
 
-        # 3. Безопасное добавление продуктов в категорию
+
         for product in products:
             self.add_product(product)
 
