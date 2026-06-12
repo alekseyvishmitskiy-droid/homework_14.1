@@ -7,7 +7,7 @@ from src.product import Product
 
 
 def read_json(path: str) -> List[Category]:
-    """Считывает JSON-файл и инициализирует объекты категорий и продуктов."""
+
     full_path = os.path.abspath(path)
 
     with open(full_path, "r", encoding="utf-8") as file:
